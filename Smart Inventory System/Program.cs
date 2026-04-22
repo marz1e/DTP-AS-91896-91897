@@ -1,12 +1,15 @@
 ﻿using System.Text.Json.Nodes;
 using System.Text.Json;
 using System.IO;
+using System.Text.RegularExpressions;
+using System.Globalization;
 
 class Ingredient
 {
     public string IngredientName {get;set;}
     public string ExpiryDate {get; set;}
 }
+//class recipe
 
 class Program
 {
@@ -22,18 +25,64 @@ class Program
         do
         {
             // Create a new ingredient object for this loop iteration.
-            Ingredient IngredientObject = new Ingredient(); // object creation
+            Ingredient FullIngredient = new Ingredient(); // object creation
 
             // Prompt user for the ingredient name, then read it from console.
-            Console.Write("Enter ingredient name. "); // prompt for name
-            IngredientObject.IngredientName = Console.ReadLine(); // set name field
+             // prompt for name
+            while (true)
+                {
+                    Console.Write("Enter ingredient name. Please enter only characters and hyphens: ");
+                    string name = Console.ReadLine();
+
+                    if (string.IsNullOrWhiteSpace(name))
+                    {
+                        Console.WriteLine("Ingredient name cannot be empty.");
+                        continue;
+                    }
+                    name = name.Trim();
+
+                    if (name.Length > 50)
+                    {
+                        Console.WriteLine("Name is too long. Max 50 characters.");
+                        continue;
+                    }
+                    if (!System.Text.RegularExpressions.Regex.IsMatch(name, @"^[a-zA-Z\s\-]+$"))
+                    {
+                        Console.WriteLine("Only letters, spaces, and hyphens are allowed!");
+                        continue;
+                        
+                    }
+                
+                    FullIngredient.IngredientName = name;
+                    break;
+                
+                }
 
             // Prompt user for expiry date, then read it from console.
+            Ingredient ExpiryDateObject = new Ingredient();
+            
             Console.Write("Enter expiry date (e.g. 2026-04-01): "); // prompt for expiry
-            IngredientObject.ExpiryDate = Console.ReadLine(); // set expiry field
+            DateTime expiryDate;
+            while (true)
+            {
+                Console.Write("Enter expiry date (yyyy-MM-dd): ");
+                string NewInput = Console.ReadLine();
 
-            // Add this constructed ingredient to the in-memory list.
-            IngredientsList.Add(IngredientObject); // append to list
+            if (DateTime.TryParseExact(
+                NewInput,
+                "yyyy-MM-dd",
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.None,
+                out expiryDate))
+            {
+                break;
+            }
+
+            Console.WriteLine("Invalid format. Please use yyyy-MM-dd");
+        }
+            FullIngredient.ExpiryDate = expiryDate.ToString("yyyy-MM-dd");
+
+            IngredientsList.Add(FullIngredient);
 
             // Ask if the user wants to continue adding ingredients.
             Console.Write("Do you want to add another ingredient? (y/n) "); // continuation prompt
@@ -50,22 +99,10 @@ class Program
             // Print one ingredient per line with both fields.
             Console.WriteLine($"Name: {item.IngredientName}, Expiry: {item.ExpiryDate}"); // display entry
         }
-        string json = JsonSerializer.Serialize(IngredientsList);
+        string JsonSaved = JsonSerializer.Serialize(IngredientsList);
 
-        string filepath = Path.Combine(AppContext.BaseDirectory, "ingredients.json");
+        string FilePath = Path.Combine(AppContext.BaseDirectory, "IngredientsSaved.json");
 
-        File.WriteAllText(filepath, json);
-
-        
-        
-    
-    
-    
-    
-    
+        File.WriteAllText(FilePath, JsonSaved);
     }
-    
-    
-
-
 }

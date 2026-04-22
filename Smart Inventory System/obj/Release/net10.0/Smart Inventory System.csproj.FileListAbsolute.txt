@@ -1,0 +1,15 @@
+C:\Awa's Stuff\Awa Yates-Rose - AS 91897\Smart Inventory System\bin\Release\net10.0\Smart Inventory System.exe
+C:\Awa's Stuff\Awa Yates-Rose - AS 91897\Smart Inventory System\bin\Release\net10.0\Smart Inventory System.deps.json
+C:\Awa's Stuff\Awa Yates-Rose - AS 91897\Smart Inventory System\bin\Release\net10.0\Smart Inventory System.runtimeconfig.json
+C:\Awa's Stuff\Awa Yates-Rose - AS 91897\Smart Inventory System\bin\Release\net10.0\Smart Inventory System.dll
+C:\Awa's Stuff\Awa Yates-Rose - AS 91897\Smart Inventory System\bin\Release\net10.0\Smart Inventory System.pdb
+C:\Awa's Stuff\Awa Yates-Rose - AS 91897\Smart Inventory System\obj\Release\net10.0\Smart Inventory System.GeneratedMSBuildEditorConfig.editorconfig
+C:\Awa's Stuff\Awa Yates-Rose - AS 91897\Smart Inventory System\obj\Release\net10.0\Smart Inventory System.AssemblyInfoInputs.cache
+C:\Awa's Stuff\Awa Yates-Rose - AS 91897\Smart Inventory System\obj\Release\net10.0\Smart Inventory System.AssemblyInfo.cs
+C:\Awa's Stuff\Awa Yates-Rose - AS 91897\Smart Inventory System\obj\Release\net10.0\Smart Inventory System.csproj.CoreCompileInputs.cache
+C:\Awa's Stuff\Awa Yates-Rose - AS 91897\Smart Inventory System\obj\Release\net10.0\Smart Inventory System.sourcelink.json
+C:\Awa's Stuff\Awa Yates-Rose - AS 91897\Smart Inventory System\obj\Release\net10.0\Smart Inventory System.dll
+C:\Awa's Stuff\Awa Yates-Rose - AS 91897\Smart Inventory System\obj\Release\net10.0\refint\Smart Inventory System.dll
+C:\Awa's Stuff\Awa Yates-Rose - AS 91897\Smart Inventory System\obj\Release\net10.0\Smart Inventory System.pdb
+C:\Awa's Stuff\Awa Yates-Rose - AS 91897\Smart Inventory System\obj\Release\net10.0\Smart Inventory System.genruntimeconfig.cache
+C:\Awa's Stuff\Awa Yates-Rose - AS 91897\Smart Inventory System\obj\Release\net10.0\ref\Smart Inventory System.dll

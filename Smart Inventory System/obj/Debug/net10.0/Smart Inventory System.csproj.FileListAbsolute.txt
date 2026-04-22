@@ -12,3 +12,4 @@ C:\Awa's Stuff\Awa Yates-Rose - AS 91897\Smart Inventory System\obj\Debug\net10.
 C:\Awa's Stuff\Awa Yates-Rose - AS 91897\Smart Inventory System\obj\Debug\net10.0\Smart Inventory System.pdb
 C:\Awa's Stuff\Awa Yates-Rose - AS 91897\Smart Inventory System\obj\Debug\net10.0\Smart Inventory System.genruntimeconfig.cache
 C:\Awa's Stuff\Awa Yates-Rose - AS 91897\Smart Inventory System\obj\Debug\net10.0\ref\Smart Inventory System.dll
+C:\Awa's Stuff\Awa Yates-Rose - AS 91897\Smart Inventory System\obj\Debug\net10.0\Smart Inventory System.sourcelink.json
