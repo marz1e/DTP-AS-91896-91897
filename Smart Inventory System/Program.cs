@@ -4,28 +4,65 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Globalization;
 
+
 class Ingredient
+
 {
     public string IngredientName {get;set;}
-    public string ExpiryDate {get; set;}
+    public string ExpiryDate {get;set;}
 }
-//class recipe
 
 class Program
 {
     static void Main()
     {
-        // Create a dynamic list to store ingredients; length is not known yet.
-        List<Ingredient> IngredientsList = new List<Ingredient>(); // list initialization
+        List <Ingredient> IngredientsList = new List<Ingredient>();
 
-        // Temporary variable to store user's continuation input.
-        string input; // input placeholder for y/n loop control
+        while (true)
+        {
+            Console.WriteLine("\n== Ingredient Manager ===");
+            Console.WriteLine("1. Add Ingredient");
+            Console.WriteLine("2. View Ingredients");
+            Console.WriteLine("3. Save to File");
+            Console.WriteLine("4. Exit");
+            Console.Write("Choose an option: ");
 
-        // Begin loop to gather ingredient entries until user opts out.
+            string choice = Console.ReadLine()?.Trim();
+
+            switch (choice)
+            {
+                case "1":
+                    AddIngredient(IngredientsList);
+                    break;
+
+                case "2":
+                    ShowIngredients(IngredientsList);
+                    break;
+
+                case "3":
+                    SaveToFile(IngredientsList);
+                    break;
+
+                case "4":
+                    Console.WriteLine("Thank you for using this program!");
+                    return;
+
+                default:
+                    Console.WriteLine("Invalid option. Please enter numbers 1-4");
+                    break;
+                
+            }
+        }
+    }
+    static void AddIngredient(List<Ingredient> IngredientsList)
+    {
+        string input;
+
         do
         {
             // Create a new ingredient object for this loop iteration.
             Ingredient FullIngredient = new Ingredient(); // object creation
+
 
             // Prompt user for the ingredient name, then read it from console.
              // prompt for name
@@ -34,12 +71,14 @@ class Program
                     Console.Write("Enter ingredient name. Please enter only characters and hyphens: ");
                     string name = Console.ReadLine();
 
+
                     if (string.IsNullOrWhiteSpace(name))
                     {
                         Console.WriteLine("Ingredient name cannot be empty.");
                         continue;
                     }
                     name = name.Trim();
+
 
                     if (name.Length > 50)
                     {
@@ -50,23 +89,33 @@ class Program
                     {
                         Console.WriteLine("Only letters, spaces, and hyphens are allowed!");
                         continue;
-                        
+                       
                     }
-                
-                    FullIngredient.IngredientName = name;
+
+
+                    // confirmation step
+                    Console.Write($"You entered '{name}'. Is this correct? (y/n): ");
+                    string confirm = Console.ReadLine()?.ToLower();
+
+
+                    if (confirm == "y")
+                {
+                     FullIngredient.IngredientName = name;
                     break;
-                
+                }
+               
                 }
 
-            // Prompt user for expiry date, then read it from console.
-            Ingredient ExpiryDateObject = new Ingredient();
-            
-            Console.Write("Enter expiry date (e.g. 2026-04-01): "); // prompt for expiry
+
+            // Prompt user for expiry date, then read it from console // prompt for expiry
             DateTime expiryDate;
             while (true)
             {
+                  while (true)
+            {
                 Console.Write("Enter expiry date (yyyy-MM-dd): ");
                 string NewInput = Console.ReadLine();
+
 
             if (DateTime.TryParseExact(
                 NewInput,
@@ -78,31 +127,58 @@ class Program
                 break;
             }
 
+
             Console.WriteLine("Invalid format. Please use yyyy-MM-dd");
         }
-            FullIngredient.ExpiryDate = expiryDate.ToString("yyyy-MM-dd");
 
+
+        //confirmation step
+        Console.Write($"You entered '{expiryDate:yyyy-MM-dd}. Is this correct? (y/n): ");
+        string confirm_2 = Console.ReadLine()?.ToLower();
+
+
+        if (confirm_2 == "y")
+            {
+                FullIngredient.ExpiryDate = expiryDate.ToString("yyyy-MM-dd");
+                break;
+            }
+
+
+            }
+          
             IngredientsList.Add(FullIngredient);
+
 
             // Ask if the user wants to continue adding ingredients.
             Console.Write("Do you want to add another ingredient? (y/n) "); // continuation prompt
             input = Console.ReadLine()?.ToLower(); // normalize response
 
+
         } while (input == "y"); // repeat while user enters y
 
-        // After input collection is complete, print a header line.
-        Console.WriteLine("\nIngredients List:"); // section header
-
-        // Loop through each saved ingredient and print its properties.
-        foreach (var item in IngredientsList) // iterate all entries
-        {
-            // Print one ingredient per line with both fields.
-            Console.WriteLine($"Name: {item.IngredientName}, Expiry: {item.ExpiryDate}"); // display entry
         }
-        string JsonSaved = JsonSerializer.Serialize(IngredientsList);
 
-        string FilePath = Path.Combine(AppContext.BaseDirectory, "IngredientsSaved.json");
+    
+    static void SaveToFile(List<Ingredient> IngredientsList)
+        {
+            string json = JsonSerializer.Serialize(IngredientsList, new JsonSerializerOptions { WriteIndented = true});
 
-        File.WriteAllText(FilePath, JsonSaved);
+            string path = "IngredientsSaved.json";
+
+            File.WriteAllText(path,json);
+
+            Console.WriteLine("Saved to file.");
+
+        }
+    static void ShowIngredients(List<Ingredient> IngredientList)
+        {
+            Console.WriteLine("\nIngredients List:");
+            // add something that will tell the user that its empty
+            foreach (var item in IngredientList)
+            {
+                Console.WriteLine($"Name: {item.IngredientName}, Expiry: {item.ExpiryDate}");
+            }
+        }
+    
     }
-}
+

@@ -1,0 +1,5 @@
+c:\Awa's Stuff\Awa Yates-Rose - AS 91897\Smart Inventory System\bin\Release\net10.0\publish\Smart Inventory System.exe
+c:\Awa's Stuff\Awa Yates-Rose - AS 91897\Smart Inventory System\bin\Release\net10.0\publish\Smart Inventory System.dll
+c:\Awa's Stuff\Awa Yates-Rose - AS 91897\Smart Inventory System\bin\Release\net10.0\publish\Smart Inventory System.deps.json
+c:\Awa's Stuff\Awa Yates-Rose - AS 91897\Smart Inventory System\bin\Release\net10.0\publish\Smart Inventory System.runtimeconfig.json
+c:\Awa's Stuff\Awa Yates-Rose - AS 91897\Smart Inventory System\bin\Release\net10.0\publish\Smart Inventory System.pdb
