@@ -10,6 +10,7 @@ class Ingredient
 {
     public string IngredientName {get;set;}
     public string ExpiryDate {get;set;}
+    public decimal IngredientCost { get; set;}
 }
 
 class Program
@@ -24,10 +25,11 @@ class Program
             Console.WriteLine("1. Add Ingredient");
             Console.WriteLine("2. View Ingredients");
             Console.WriteLine("3. Save to File");
-            Console.WriteLine("4. Exit");
+            Console.WriteLine("4. Calculate money loss");
+            Console.WriteLine("5. Exit");
             Console.Write("Choose an option: ");
 
-            string choice = Console.ReadLine()?.Trim();
+            string choice = Console.ReadLine() ?? "";
 
             switch (choice)
             {
@@ -44,6 +46,11 @@ class Program
                     break;
 
                 case "4":
+                    CalculateLoss(IngredientsList);
+                    break;
+                    
+
+                case "5":
                     Console.WriteLine("Thank you for using this program!");
                     return;
 
@@ -111,54 +118,90 @@ class Program
             DateTime expiryDate;
             while (true)
             {
-                  while (true)
-            {
                 Console.Write("Enter expiry date (yyyy-MM-dd): ");
                 string NewInput = Console.ReadLine();
-
-
-            if (DateTime.TryParseExact(
+                
+                if (!DateTime.TryParseExact(
                 NewInput,
                 "yyyy-MM-dd",
                 CultureInfo.InvariantCulture,
                 DateTimeStyles.None,
                 out expiryDate))
-            {
-                break;
-            }
+                    {
+                        Console.WriteLine("Invalid format. Please use yyyy-MM-dd");
+                        continue;
+                    }
 
+                    Console.Write($"You entered '{expiryDate:yyyy-MM-dd}. Is this correct? (y/n): ");
+                    string confirm_2 = Console.ReadLine()?.ToLower();
 
-            Console.WriteLine("Invalid format. Please use yyyy-MM-dd");
-        }
+                    if (confirm_2 == "y")
+                    {
+                        FullIngredient.ExpiryDate = expiryDate.ToString("yyyy-MM-dd");
+                        break;
+                    }
 
+                }
+        
+        decimal ingredientcost;
 
-        //confirmation step
-        Console.Write($"You entered '{expiryDate:yyyy-MM-dd}. Is this correct? (y/n): ");
-        string confirm_2 = Console.ReadLine()?.ToLower();
+        while (true)
+                {
+                    Console.Write("Enter the cost of your ingredient. Please enter a number: ");
+                    string? inputCost = Console.ReadLine();
 
+                    if (!decimal.TryParse(inputCost,out ingredientcost) || ingredientcost < 0)
+                {
+                    Console.WriteLine("Invalid number. Try again");
+                    continue;
+                }
+                Console.Write($"You entered '{ingredientcost:C}'. Is this correct? (y/n)");
+                    string confirm = (Console.ReadLine() ?? "").ToLower();
 
-        if (confirm_2 == "y")
-            {
-                FullIngredient.ExpiryDate = expiryDate.ToString("yyyy-MM-dd");
-                break;
-            }
-
-
-            }
+                    if (confirm == "y")
+                    {
+                        FullIngredient.IngredientCost = ingredientcost;
+                        break;
+                    }
+                }
           
             IngredientsList.Add(FullIngredient);
 
 
             // Ask if the user wants to continue adding ingredients.
-            Console.Write("Do you want to add another ingredient? (y/n) "); // continuation prompt
-            input = Console.ReadLine()?.ToLower(); // normalize response
+            while (true)
+            {
+                Console.Write("Do you want to add another ingredient? (y/n) "); // continuation prompt
+                input = (Console.ReadLine()?? "").ToLower().Trim(); // normalize response
 
+            if (input == "y" || input == "n")
+                break;
+            Console.WriteLine("Invalid input. Please enter 'y' or 'n'.");
+            }
 
         } while (input == "y"); // repeat while user enters y
+        
 
         }
 
-    
+
+    static void CalculateLoss(List<Ingredient> ingredients)
+    {
+        decimal totalLoss = 0;
+        DateTime today = DateTime.Today;
+
+        foreach (var item in ingredients)
+        {
+            if (DateTime.TryParse(item.ExpiryDate, out DateTime expiry))
+            {
+                if (expiry < today)
+                {
+                    totalLoss += item.IngredientCost;
+                }
+            }
+        }
+        Console.WriteLine($"\nTotal loss from expired ingredients: {totalLoss:C}");
+    }
     static void SaveToFile(List<Ingredient> IngredientsList)
         {
             string json = JsonSerializer.Serialize(IngredientsList, new JsonSerializerOptions { WriteIndented = true});
@@ -176,7 +219,7 @@ class Program
             // add something that will tell the user that its empty
             foreach (var item in IngredientList)
             {
-                Console.WriteLine($"Name: {item.IngredientName}, Expiry: {item.ExpiryDate}");
+                Console.WriteLine($"Name: {item.IngredientName}, Expiry: {item.ExpiryDate}, Cost: {item.IngredientCost + "$"}");
             }
         }
     
