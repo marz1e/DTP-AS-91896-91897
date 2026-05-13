@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Smart Inventory System")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3b9b9ae5282d68994ce2fe51851096b8ddbdb7c3")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b3119f2ada01eb85617531d2285fc28698a1482f")]
 [assembly: System.Reflection.AssemblyProductAttribute("Smart Inventory System")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Smart Inventory System")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

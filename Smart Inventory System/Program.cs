@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Globalization;
+using System.Reflection;
 
 
 class Ingredient
@@ -13,11 +14,19 @@ class Ingredient
     public decimal IngredientCost { get; set;}
 }
 
+class Recipe
+{
+    public string RecipeName {  get; set;}
+    public List<string> RequiredIngredients {get; set;}
+}
+
+
 class Program
 {
     static void Main()
     {
         List <Ingredient> IngredientsList = new List<Ingredient>();
+        List<Recipe> recipes = LoadRecipes();
 
         while (true)
         {
@@ -26,10 +35,12 @@ class Program
             Console.WriteLine("2. View Ingredients");
             Console.WriteLine("3. Save to File");
             Console.WriteLine("4. Calculate money loss");
-            Console.WriteLine("5. Exit");
+            Console.WriteLine("5. Suggest Recipes");
+            Console.WriteLine("6. Exit");
             Console.Write("Choose an option: ");
 
-            string choice = Console.ReadLine() ?? "";
+            string choice = Console.ReadLine().Trim();
+            
 
             switch (choice)
             {
@@ -51,9 +62,12 @@ class Program
                     
 
                 case "5":
+                    SuggestRecipes(IngredientsList, recipes);
+                    break;
+
+                case "6":
                     Console.WriteLine("Thank you for using this program!");
                     return;
-
                 default:
                     Console.WriteLine("Invalid option. Please enter numbers 1-4");
                     break;
@@ -108,9 +122,13 @@ class Program
                     if (confirm == "y")
                 {
                      FullIngredient.IngredientName = name;
+                        name.Trim().ToLower();
                     break;
                 }
-               
+                else
+                {
+                    continue;
+                }
                 }
 
 
@@ -184,6 +202,89 @@ class Program
 
         }
 
+    static List<Recipe> LoadRecipes()
+    {
+        string path = "recipes.json";
+        
+
+        if (!File.Exists(path))
+        {
+            Console.WriteLine("Recipe file does not found.");
+            return new List<Recipe>();
+        }
+        string json = File.ReadAllText(path);
+
+        return JsonSerializer.Deserialize<List<Recipe>>(json)
+                ?? new List<Recipe>();
+    }
+
+    static void SuggestRecipes(List<Ingredient> ingredients, List<Recipe> recipes)
+    {
+        Console.WriteLine("\n=== Recipe Suggestions ===");
+
+        List <string> userIngredients = ingredients
+            .Select(i => i.IngredientName.ToLower())
+            .ToList();
+
+        bool foundAny = false;
+
+
+        var sortedRecipes = recipes
+        .OrderByDescending(recipe =>
+            (double)recipe.RequiredIngredients.Count(required => 
+                userIngredients.Contains(required.Trim().ToLower())
+                )
+            )
+            .ToList();
+
+        foreach (var recipe in sortedRecipes)
+        {
+            int matchCount = 0;
+
+            List<string> missingIngredients = new List<string>();
+            foreach (var required in recipe.RequiredIngredients)
+            {
+                if (userIngredients.Contains(required.ToLower()))
+                {
+                    matchCount ++;
+                }
+                else
+                {
+                    missingIngredients.Add(required);
+                }
+        
+            }
+        double percentage =
+            (double)matchCount / recipe.RequiredIngredients.Count *100;
+
+            if (matchCount > 0)
+            {
+                foundAny = true;
+
+                Console.WriteLine($"\nRecipe: {recipe.RecipeName}");
+                Console.WriteLine($"Match: {percentage:F0}%");
+
+                if (missingIngredients.Count > 0)
+                {
+                    Console.WriteLine("Missing ingredients:");
+
+                    foreach (var item in missingIngredients)
+                    {
+                        Console.WriteLine($"- {item}");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("You have everything needed!");
+                }
+            }
+        }
+        if (!foundAny)
+        {
+            Console.WriteLine("No recipe match found.");
+        }
+    }
+    
 
     static void CalculateLoss(List<Ingredient> ingredients)
     {

@@ -1,0 +1,20 @@
+[
+    {
+        "RecipeName": "Omelette",
+        "RequiredIngredients": [
+            "Eggs",
+            "Cheese",
+            "Ham"  
+        ]
+    },
+
+    {
+        "RecipeName": "Burger",
+        "RequiredIngredients": [
+            "Bread",
+            "Beef",
+            "Cheese",
+            "Lettuce"
+        ]
+    }
+]
