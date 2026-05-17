@@ -4,14 +4,17 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Globalization;
 using System.Reflection;
+using System.ComponentModel;
+using System.Linq;
 
 
 class Ingredient
 
 {
-    public string IngredientName {get;set;}
-    public string ExpiryDate {get;set;}
+    public string IngredientName {get;set;} = "";
+    public string ExpiryDate {get;set;} = "";
     public decimal IngredientCost { get; set;}
+    public string Quantity {get; set;} = "";
 }
 
 class Recipe
@@ -25,7 +28,7 @@ class Program
 {
     static void Main()
     {
-        List <Ingredient> IngredientsList = new List<Ingredient>();
+        List <Ingredient> IngredientsList = LoadIngredients();
         List<Recipe> recipes = LoadRecipes();
 
         while (true)
@@ -33,13 +36,15 @@ class Program
             Console.WriteLine("\n== Ingredient Manager ===");
             Console.WriteLine("1. Add Ingredient");
             Console.WriteLine("2. View Ingredients");
-            Console.WriteLine("3. Save to File");
-            Console.WriteLine("4. Calculate money loss");
-            Console.WriteLine("5. Suggest Recipes");
-            Console.WriteLine("6. Exit");
+            Console.WriteLine("3. Calculate money loss");
+            Console.WriteLine("4. Suggest Recipes");
+            Console.WriteLine("5. Check Expired Ingredients");
+            Console.WriteLine("6. Remove Ingredient");
+            Console.WriteLine("7. Edit ingredient");
+            Console.WriteLine("8. Exit");
             Console.Write("Choose an option: ");
 
-            string choice = Console.ReadLine().Trim();
+            string choice = (Console.ReadLine() ?? "").Trim();
             
 
             switch (choice)
@@ -53,23 +58,31 @@ class Program
                     break;
 
                 case "3":
-                    SaveToFile(IngredientsList);
-                    break;
-
-                case "4":
                     CalculateLoss(IngredientsList);
                     break;
                     
 
-                case "5":
+                case "4":
                     SuggestRecipes(IngredientsList, recipes);
                     break;
 
+                case "5":
+                    CheckExpiredIngredients(IngredientsList);
+                    break;
+                
                 case "6":
+                    RemoveIngredient(IngredientsList);
+                    break;
+
+                case "7":
+                    EditIngredient(IngredientsList);
+                    break;
+
+                case "8":
                     Console.WriteLine("Thank you for using this program!");
                     return;
                 default:
-                    Console.WriteLine("Invalid option. Please enter numbers 1-4");
+                    Console.WriteLine("Invalid option. Please enter numbers 1-8");
                     break;
                 
             }
@@ -122,7 +135,7 @@ class Program
                     if (confirm == "y")
                 {
                      FullIngredient.IngredientName = name;
-                        name.Trim().ToLower();
+                        name = name.Trim().ToLower();
                     break;
                 }
                 else
@@ -160,7 +173,37 @@ class Program
                     }
 
                 }
-        
+
+            string quantityInput = "";
+
+            while (true)
+            {
+                Console.Write("Enter quantity (example: 500ml, 2L, 3 bottles): ");
+                
+                quantityInput = Console.ReadLine();
+
+                if (string.IsNullOrWhiteSpace(quantityInput))
+                {
+                    Console.WriteLine("Quantity cannot be empty");
+                    continue;
+                }
+
+                if (quantityInput.Length > 20)
+                {
+                    Console.WriteLine("Quantity is too long.");
+                    continue;
+                }
+                if (!Regex.IsMatch(quantityInput,
+                    @"^[a-zA-Z0-9\s\.]+$"))
+                {
+                    Console.WriteLine("Only letters, numbers and space, and fullstops allowed.");
+                    continue;
+                }
+                
+                break;
+        }
+        FullIngredient.Quantity = quantityInput.Trim();
+            
         decimal ingredientcost;
 
         while (true)
@@ -202,6 +245,37 @@ class Program
 
         }
 
+    static void CheckExpiredIngredients(List<Ingredient> ingredients)
+    {
+        Console.WriteLine("\n=== Expired Ingredient Alerts ===");
+
+        bool foundExpired = false;
+
+        foreach (var item in ingredients)
+        {
+            if (DateTime.TryParse(item.ExpiryDate, out DateTime expiry))
+            {
+                if (expiry < DateTime.Today)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+
+                    Console.WriteLine(
+                        $"{item.IngredientName} expired on {item.ExpiryDate}"
+                    );
+
+                    Console.ResetColor();
+
+                    foundExpired = true;
+                }
+            }
+                
+        }
+        if (!foundExpired)
+        {
+            Console.WriteLine("No expired ingredients.");
+        }
+    }
+    
     static List<Recipe> LoadRecipes()
     {
         string path = "recipes.json";
@@ -223,6 +297,14 @@ class Program
         Console.WriteLine("\n=== Recipe Suggestions ===");
 
         List <string> userIngredients = ingredients
+            .Where(i =>
+            {
+                if (DateTime.TryParse(i.ExpiryDate, out DateTime expiry))
+                {
+                    return expiry >= DateTime.Today;
+                }
+                return false;
+            })
             .Select(i => i.IngredientName.ToLower())
             .ToList();
 
@@ -244,7 +326,7 @@ class Program
             List<string> missingIngredients = new List<string>();
             foreach (var required in recipe.RequiredIngredients)
             {
-                if (userIngredients.Contains(required.ToLower()))
+                if (userIngredients.Contains(required.Trim().ToLower()))
                 {
                     matchCount ++;
                 }
@@ -303,26 +385,180 @@ class Program
         }
         Console.WriteLine($"\nTotal loss from expired ingredients: {totalLoss:C}");
     }
-    static void SaveToFile(List<Ingredient> IngredientsList)
+
+    static void RemoveIngredient(List<Ingredient> ingredients)
+    {
+        Console.WriteLine("Enter ingredient name to remove: ");
+
+        string name =
+            Console.ReadLine().Trim().ToLower();
+
+        Ingredient found = ingredients.FirstOrDefault(i =>
+        !string.IsNullOrWhiteSpace(i.IngredientName) &&
+        i.IngredientName.ToLower() == name);
+
+        if (found == null)
         {
-            string json = JsonSerializer.Serialize(IngredientsList, new JsonSerializerOptions { WriteIndented = true});
-
-            string path = "IngredientsSaved.json";
-
-            File.WriteAllText(path,json);
-
-            Console.WriteLine("Saved to file.");
-
+            Console.WriteLine("Ingredient not found");
+            return;
         }
+
+        ingredients.Remove(found);
+
+        Console.WriteLine("Ingredient removed.");
+    }
+    
+    static void EditIngredient(List<Ingredient> ingredients)
+    {
+        Console.Write("Enter ingredient name to edit: ");
+
+        string name =
+            Console.ReadLine().Trim().ToLower();
+
+        Ingredient found = ingredients.FirstOrDefault( i =>
+        !string.IsNullOrWhiteSpace(i.IngredientName) &&
+        i.IngredientName.ToLower() == name);
+
+        if (found == null)
+        {
+            Console.WriteLine("Ingredient not found");
+            return;
+        }
+
+        Console.WriteLine("\nWhat would you like to edit?");
+        Console.WriteLine("1. Name");
+        Console.WriteLine("2. Expiry date");
+        Console.WriteLine("3. Cost");
+        Console.WriteLine("4. Quantity");
+
+        string choice = Console.ReadLine();
+
+        switch (choice)
+        {
+            case "1":
+                
+                Console.Write("Enter new ingredient name: ");
+
+                found.IngredientName=
+                    Console.ReadLine().Trim();
+
+                break;
+            
+            case "2":
+
+                while (true)
+                {
+                    Console.Write("Enter new expiry date (yyyy-MM-dd): ");
+                    string newDate = Console.ReadLine();
+
+                    if (DateTime.TryParseExact(
+                        newDate,
+                        "yyyy-MM-dd",
+                        CultureInfo.InvariantCulture,
+                        DateTimeStyles.None,
+                        out _))
+
+                    {
+                        found.ExpiryDate = newDate;
+                        break;
+                    }
+                    Console.WriteLine("Invalid date format.");
+
+                }
+                break;
+            case "3":
+
+                decimal newCost;
+
+                while (true)
+                {
+                    Console.Write("Enter new cost: ");
+
+                    if (decimal.TryParse(Console.ReadLine(), out newCost))
+                    {
+                        found.IngredientCost = newCost;
+                        break;
+                    }
+                    Console.WriteLine("Invalid cost.");
+                }
+                break;
+            
+            case "4":
+
+                string newQuantity;
+
+                while (true)
+                {
+                    Console.Write("Enter new quantity (e.g. 500ml, 2L, 3 bottles): ");
+
+                    newQuantity = Console.ReadLine();
+
+                    if (string.IsNullOrWhiteSpace(newQuantity))
+                    {
+                        Console.WriteLine("Quantity cannot be empty");
+                        continue;
+                    }
+
+                    if (newQuantity.Length > 20)
+                    {
+                        Console.WriteLine("Quantity too long");
+                        continue;
+                    }
+
+                    if (!Regex.IsMatch(newQuantity,
+                    @"^[a-zA-Z0-9\s\.]+$"))
+                    {
+                        Console.WriteLine("Invalid format");
+                        continue;
+                    }
+                    
+                    break;
+
+                }
+                found.Quantity = newQuantity.Trim();
+
+                break;
+    }
+    }
     static void ShowIngredients(List<Ingredient> IngredientList)
         {
             Console.WriteLine("\nIngredients List:");
-            // add something that will tell the user that its empty
-            foreach (var item in IngredientList)
-            {
-                Console.WriteLine($"Name: {item.IngredientName}, Expiry: {item.ExpiryDate}, Cost: {item.IngredientCost + "$"}");
-            }
-        }
-    
-    }
 
+            if (IngredientList.Count == 0)
+        {
+            Console.WriteLine("No ingredients stored.");
+            return;
+        }
+
+        foreach (var item in IngredientList)
+        {
+            Console.WriteLine(
+                $"Name: {item.IngredientName} | " +
+                $"Expiry: {item.ExpiryDate} | " +
+                $"Cost: ${item.IngredientCost} |" +
+                $"Quantity: {item.Quantity}"
+            );
+        }
+    }
+    static List<Ingredient> LoadIngredients()
+    {
+        string path = "IngredientsSaved.json";
+        if (!File.Exists(path))
+            return new List<Ingredient>();
+
+        string json = File.ReadAllText(path);
+
+        return JsonSerializer.Deserialize<List<Ingredient>>(json)
+                ??new List<Ingredient>();
+    }
+static void SaveIngredients(List<Ingredient> ingredients)
+{
+    File.WriteAllText(
+        "IngredientsSaved.json",
+        JsonSerializer.Serialize(ingredients, new JsonSerializerOptions
+        {
+            WriteIndented = true
+        })
+    );
+}
+}
