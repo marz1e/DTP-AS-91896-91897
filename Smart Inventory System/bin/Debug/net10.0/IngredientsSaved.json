@@ -1,5 +1,26 @@
 [
-    
-
-    
+  {
+    "IngredientName": "egg",
+    "ExpiryDate": "2027-12-12",
+    "IngredientCost": 10,
+    "Quantity": "4"
+  },
+  {
+    "IngredientName": "cheese",
+    "ExpiryDate": "2026-12-12",
+    "IngredientCost": 100,
+    "Quantity": "4 blocks"
+  },
+  {
+    "IngredientName": "test",
+    "ExpiryDate": "2026-12-12",
+    "IngredientCost": 100,
+    "Quantity": "100ml"
+  },
+  {
+    "IngredientName": "expiredtest",
+    "ExpiryDate": "2000-12-12",
+    "IngredientCost": 100000000,
+    "Quantity": "14"
+  }
 ]
